@@ -7,6 +7,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <sys/mman.h>
+#include <fcntl.h>
+#include <signal.h>
 
 #include "exec_parser.h"
 
@@ -14,7 +18,20 @@ static so_exec_t *exec;
 
 static void segv_handler(int signum, siginfo_t *info, void *context)
 {
+	
+
+	printf("address fault - %p\n", info->si_addr);
+	printf("signum - %d\n", signum);
+	printf("context - %p\n", context);
+
+	printf("\nexec struct\n\n");
+
+	printf("base_addr: %p\n", exec->base_addr);
+	printf("entry - %p\n", exec->entry);
+	printf("segments_no - %d\n", exec->segments_no);
+
 	/* TODO - actual loader implementation */
+	exit(0);
 }
 
 int so_init_loader(void)
