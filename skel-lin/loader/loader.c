@@ -21,9 +21,8 @@ static int fd;
 static void segv_handler(int signum, siginfo_t * info, void * context) {
 
   so_seg_t * seg_err = NULL;
-  uintptr_t page_offset;
-  uintptr_t seg_vaddr;
-  void * page_address = (void * )((int) info -> si_addr - ((int) info -> si_addr % PAGESIZE));
+  uintptr_t page_offset, seg_vaddr;
+  void * page_address;
 
   for (int i = 0; i < exec -> segments_no; i++) {
     seg_err = & exec -> segments[i];
@@ -34,11 +33,13 @@ static void segv_handler(int signum, siginfo_t * info, void * context) {
       break;
     }
   }
-  page_offset = (uintptr_t) page_address - seg_vaddr;
 
   if (!seg_err) {
     exit(139);
   }
+  
+  page_address = (void * )((int) info -> si_addr - ((int) info -> si_addr % PAGESIZE));
+  page_offset = (uintptr_t) page_address - seg_vaddr;
 
   if (info -> si_code == SEGV_MAPERR) {
     void * ptr = mmap(page_address, PAGESIZE, PROT_READ | PROT_WRITE, MAP_ANON | MAP_FIXED | MAP_PRIVATE, -1, 0);
